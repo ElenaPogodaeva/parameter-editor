@@ -22,6 +22,7 @@ interface Model {
 interface Props {
   params: Param[];
   model: Model;
+  onParamChange: (id: number, value: string) => void;
 }
 
 const initParams = [
@@ -58,10 +59,16 @@ type State = Record<string, never>;
 class ParamEditor extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
+    this.handleChange = this.handleChange.bind(this);
     this.getModel = this.getModel.bind(this);
   }
 
-  public getModel() {
+  handleChange(event: React.ChangeEvent<HTMLInputElement>, id: number): void {
+    const { value } = event.target;
+    this.props.onParamChange(id, value);
+  }
+
+  getModel() {
     console.log(this.props.model);
   }
 
@@ -80,10 +87,11 @@ class ParamEditor extends React.Component<Props, State> {
                   value={
                     this.props.model.paramValues.find((item) => item.paramId === param.id)?.value
                   }
+                  onChange={(e) => this.handleChange(e, param.id)}
                 />
               </label>
             ))}
-          <button onClick={this.getModel}></button>
+          <button type="submit"></button>
         </form>
       </div>
     );
@@ -106,10 +114,44 @@ class App extends React.Component<AppProps, AppState> {
       params: initParams,
       model: initModel,
     };
+    this.handleParamChange = this.handleParamChange.bind(this);
+  }
+
+  handleParamChange(id: number, value: string): void {
+    this.setState((prevState: AppState) => ({
+      model: {
+        ...prevState.model,
+        paramValues: [
+          ...prevState.model.paramValues.filter((item) => item.paramId !== id),
+          {
+            paramId: id,
+            value: value,
+          },
+        ],
+      },
+
+      // model: {
+      //   ...prevState.model,
+      //   paramValues: [
+      //     ...prevState.model.paramValues.map((item) => {
+      //       if (item.paramId === id) {
+      //         item.value = value;
+      //       }
+      //       return item;
+      //     })
+      //   ]
+      // }
+    }));
   }
 
   render() {
-    return <ParamEditor params={this.state.params} model={this.state.model} />;
+    return (
+      <ParamEditor
+        params={this.state.params}
+        model={this.state.model}
+        onParamChange={this.handleParamChange}
+      />
+    );
   }
 }
 

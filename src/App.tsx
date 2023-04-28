@@ -54,11 +54,14 @@ const initModel = {
 
 // ParamEditor Component
 
-type State = Record<string, never>;
+type State = {
+  showModel: boolean;
+};
 
 class ParamEditor extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
+    this.state = { showModel: false };
     this.handleChange = this.handleChange.bind(this);
     this.getModel = this.getModel.bind(this);
   }
@@ -66,34 +69,45 @@ class ParamEditor extends React.Component<Props, State> {
   handleChange(event: React.ChangeEvent<HTMLInputElement>, id: number): void {
     const { value } = event.target;
     this.props.onParamChange(id, value);
+    this.setState({ showModel: false });
   }
 
-  getModel() {
-    console.log(this.props.model);
+  getModel(event: React.FormEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    this.setState({ showModel: true });
   }
 
   render() {
     return (
-      <div className="container">
-        <h2 className="title">Параметры</h2>
-        <form className="form">
-          {this.props.params &&
-            this.props.params.map((param) => (
-              <label className="label" key={param.id}>
-                <p>{param.name}</p>
-                <input
-                  type="text"
-                  className="input"
-                  value={
-                    this.props.model.paramValues.find((item) => item.paramId === param.id)?.value
-                  }
-                  onChange={(e) => this.handleChange(e, param.id)}
-                />
-              </label>
-            ))}
-          <button type="submit"></button>
-        </form>
-      </div>
+      <>
+        <div className="container">
+          <h2 className="title">Параметры</h2>
+          <form className="form">
+            {this.props.params &&
+              this.props.params.map((param) => (
+                <label className="label" key={param.id}>
+                  <p className="text">{param.name}</p>
+                  <input
+                    type="text"
+                    className="input"
+                    value={
+                      this.props.model.paramValues.find((item) => item.paramId === param.id)?.value
+                    }
+                    onChange={(e) => this.handleChange(e, param.id)}
+                  />
+                </label>
+              ))}
+            <button type="submit" className="button" onClick={(e) => this.getModel(e)}>
+              Показать параметры
+            </button>
+          </form>
+        </div>
+        {this.state.showModel && (
+          <div className="model">
+            <pre>{JSON.stringify(this.props.model, null, 2)}</pre>
+          </div>
+        )}
+      </>
     );
   }
 }
@@ -129,18 +143,6 @@ class App extends React.Component<AppProps, AppState> {
           },
         ],
       },
-
-      // model: {
-      //   ...prevState.model,
-      //   paramValues: [
-      //     ...prevState.model.paramValues.map((item) => {
-      //       if (item.paramId === id) {
-      //         item.value = value;
-      //       }
-      //       return item;
-      //     })
-      //   ]
-      // }
     }));
   }
 

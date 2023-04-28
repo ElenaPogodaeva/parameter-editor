@@ -51,6 +51,47 @@ const initModel = {
   colors: [],
 };
 
+// ParamEditor Component
+
+type State = Record<string, never>;
+
+class ParamEditor extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.getModel = this.getModel.bind(this);
+  }
+
+  public getModel() {
+    console.log(this.props.model);
+  }
+
+  render() {
+    return (
+      <div className="container">
+        <h2 className="title">Параметры</h2>
+        <form className="form">
+          {this.props.params &&
+            this.props.params.map((param) => (
+              <label className="label" key={param.id}>
+                <p>{param.name}</p>
+                <input
+                  type="text"
+                  className="input"
+                  value={
+                    this.props.model.paramValues.find((item) => item.paramId === param.id)?.value
+                  }
+                />
+              </label>
+            ))}
+          <button onClick={this.getModel}></button>
+        </form>
+      </div>
+    );
+  }
+}
+
+// App Component
+
 type AppProps = Record<string, never>;
 
 type AppState = {
